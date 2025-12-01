@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Project specific
+results/checkpoint-*/
+*.log
+.DS_Store
+
+# Large data files (optional, depending on if you want to host data)
+# data/*.json
+models/bert_classifier/
+models/*.safetensors

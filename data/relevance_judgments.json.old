@@ -1,0 +1,8 @@
+{
+  "vaarttha": [911, 912, 910, 909, 908, 913, 1486, 1487, 1395, 1396, 1407, 498, 499, 500, 1570, 1571, 1572, 1573, 1574, 1912],
+  "kaayikam": [698, 699, 700, 701, 702],
+  "rashtreeyam": [],
+  "cinema": [2122],
+  "technology": [1415, 1413, 1414, 1458, 1384],
+  "_instructions": "list relevant doc IDs for each query - manually reviewed and labeled based on content, includes docs outside top-10"
+}
