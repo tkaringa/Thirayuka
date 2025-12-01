@@ -104,7 +104,7 @@ def highlight_text(text, query):
     query_terms = query.split()
     highlighted = text
     for term in query_terms:
-        # Use regex to replace case-insensitive so that html doesn't break (Malayalam has no case though)
+        # Case-insensitive replacement
         pattern = re.compile(f"({re.escape(term)})", re.IGNORECASE)
         highlighted = pattern.sub(r'<span style="background-color: #FFFF00; color: black; font-weight: bold;">\1</span>', highlighted)
     return highlighted
