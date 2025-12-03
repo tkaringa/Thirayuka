@@ -30,7 +30,7 @@ def get_stopwords():
 
 def simple_stem(word):
     # basic suffix stripping
-    suffixes = ['ിൽ', 'ുടെ', 'ാൽ', 'ക്ക്', 'നു', 'ടെ', 'ലെ', 'ക്കും', 'യി', 'വും']
+    suffixes = ['ിൽ', 'ുടെ', 'ാൽ', 'ക്ക്', 'നു', 'ടെ', 'ലെ', 'ക്കും', 'യി', 'വും', 'ം']
     for s in suffixes:
         if word.endswith(s):
             return word[:-len(s)]
