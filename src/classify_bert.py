@@ -1,5 +1,5 @@
-# bert classifier comparison
-# uses distilbert for multilingual support
+# BERT classifier comparison
+# Use DistilBERT model
 
 import json
 import torch
@@ -24,10 +24,10 @@ class MalayalamDataset(torch.utils.data.Dataset):
 def load_data(filename):
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    # use original text for bert if available
+    # Use original text
     texts = [item.get('original_text', item['text']) for item in data]
     
-    # create labels based on content (Politics detection)
+    # Create labels for politics
     political_keywords = [
         "രാഷ്ട്രീയം", "രാഷ്ട്രീയ", # Politics
         "തിരഞ്ഞെടുപ്പ്", # Election
@@ -54,7 +54,7 @@ def load_data(filename):
             
     print(f"Positive samples (Politics): {sum(labels)}")
     
-    # Oversample positive class to balance data
+    # Balance data by oversampling
     pos_indices = [i for i, x in enumerate(labels) if x == 1]
     neg_indices = [i for i, x in enumerate(labels) if x == 0]
     
@@ -64,7 +64,7 @@ def load_data(filename):
         
         print(f"Oversampling positives from {current_pos_count} to {target_count}...")
         
-        # Duplicate positives
+        # Duplicate positive samples
         multipler = target_count // current_pos_count
         remainder = target_count % current_pos_count
         
@@ -96,7 +96,7 @@ def main():
     print("loading data...")
     texts, labels = load_data('data/processed_corpus.json')
     
-    # split data
+    # Split training and testing
     train_texts, test_texts, train_labels, test_labels = train_test_split(texts, labels, test_size=0.2)
     
     print("loading model...")

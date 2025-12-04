@@ -1,25 +1,25 @@
-# preprocess malayalam text
+# Clean and prepare text
 
 import re
 import json
 
 def clean_malayalam_text(text):
-    # remove extra spaces
+    # Remove extra spaces
     text = re.sub(r'\s+', ' ', text)
     
-    # remove english chars
+    # Remove English letters
     text = re.sub(r'[a-zA-Z]', '', text)
     
-    # remove numbers
+    # Remove all numbers
     text = re.sub(r'\d+', '', text)
     
-    # keep only malayalam
+    # Keep only Malayalam text
     text = re.sub(r'[^\u0D00-\u0D7F\s\u0964\u0965]', '', text)
     
     return text.strip()
 
 def get_stopwords():
-    # common malayalam stopwords
+    # List of common stopwords
     return {
         'ഒരു', 'ഈ', 'ആ', 'ആണ്', 'അത്', 'ഇത്', 'എന്ന്', 'എന്ന', 
         'ഉള്ള', 'ആയി', 'മറ്റ', 'മറ്റു', 'അവ', 'അവർ', 'ഇവ', 
@@ -29,15 +29,19 @@ def get_stopwords():
     }
 
 def simple_stem(word):
-    # basic suffix stripping
-    suffixes = ['ിൽ', 'ുടെ', 'ാൽ', 'ക്ക്', 'നു', 'ടെ', 'ലെ', 'ക്കും', 'യി', 'വും', 'ം']
+    # Remove word endings
+    # Check longer endings first
+    suffixes = [
+        'നുള്ള', 'പ്പിനുള്ള', 'ലൂടെ', 'മായി', 'ത്തോട്', 'ത്തിന്റെ',
+        'ന്റെ', 'ിന്റെ', 'യിൽ', 'ിൽ', 'ുടെ', 'ാൽ', 'ക്ക്', 'നു', 'ടെ', 'ലെ', 'ക്കും', 'യി', 'വും', 'ം', 'ന്', 'ിന്'
+    ]
     for s in suffixes:
         if word.endswith(s):
             return word[:-len(s)]
     return word
 
 def tokenize_malayalam(text):
-    # split, remove stopwords, stem
+    # Split and clean words
     tokens = text.split()
     stopwords = get_stopwords()
     
@@ -59,14 +63,14 @@ def preprocess_corpus(input_file, output_file):
     processed_data = []
     
     for text in texts:
-        # clean text
+        # Clean the text
         cleaned = clean_malayalam_text(text)
         
-        # skip short texts
+        # Skip very short texts
         if len(cleaned) < 20:
             continue
         
-        # tokenize
+        # Break into words
         tokens = tokenize_malayalam(cleaned)
         
         processed_data.append({
@@ -76,7 +80,7 @@ def preprocess_corpus(input_file, output_file):
             'num_tokens': len(tokens)
         })
     
-    # save data
+    # Save processed data
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(processed_data, f, ensure_ascii=False, indent=2)
     

@@ -1,4 +1,4 @@
-# evaluation metrics
+# Evaluation metrics
 
 import numpy as np
 import pickle
@@ -6,13 +6,13 @@ import json
 from retrieval import BM25, search
 
 def precision_at_k(retrieved, relevant, k):
-    # precision at k
+    # Calculate Precision@K
     retrieved_at_k = retrieved[:k]
     relevant_count = sum(1 for doc in retrieved_at_k if doc in relevant)
     return relevant_count / k if k > 0 else 0
 
 def recall_at_k(retrieved, relevant, k):
-    # recall at k
+    # Calculate Recall@K
     if not relevant:
         return 0
     retrieved_at_k = retrieved[:k]
@@ -20,7 +20,7 @@ def recall_at_k(retrieved, relevant, k):
     return relevant_count / len(relevant)
 
 def average_precision(retrieved, relevant):
-    # average precision
+    # Calculate Average Precision
     if not relevant:
         return 0
     
@@ -35,7 +35,7 @@ def average_precision(retrieved, relevant):
     return precision_sum / len(relevant)
 
 def mean_average_precision(queries_results, queries_relevant):
-    # mean average precision
+    # Calculate Mean Average Precision
     aps = []
     
     for query in queries_results:
@@ -47,7 +47,7 @@ def mean_average_precision(queries_results, queries_relevant):
     return sum(aps) / len(aps) if aps else 0
 
 def dcg_at_k(relevances, k):
-    # discounted cumulative gain
+    # Calculate DCG
     relevances = relevances[:k]
     dcg = 0
     
@@ -57,7 +57,7 @@ def dcg_at_k(relevances, k):
     return dcg
 
 def ndcg_at_k(relevances, k):
-    # normalized dcg
+    # Calculate NDCG
     dcg = dcg_at_k(relevances, k)
     
     ideal_relevances = sorted(relevances, reverse=True)
@@ -66,7 +66,7 @@ def ndcg_at_k(relevances, k):
     return dcg / idcg if idcg > 0 else 0
 
 def evaluate_system(queries_results, queries_relevant, k=10):
-    # evaluate system
+    # Evaluate system performance
     print(f"evaluating top-{k}...")
     
     precisions = []
@@ -85,7 +85,7 @@ def evaluate_system(queries_results, queries_relevant, k=10):
         recalls.append(r)
         aps.append(ap)
     
-    # averages
+    # Calculate average scores
     avg_precision = sum(precisions) / len(precisions) if precisions else 0
     avg_recall = sum(recalls) / len(recalls) if recalls else 0
     avg_f1 = 2 * avg_precision * avg_recall / (avg_precision + avg_recall) if (avg_precision + avg_recall) > 0 else 0

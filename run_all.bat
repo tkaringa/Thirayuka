@@ -42,6 +42,13 @@ IF %ERRORLEVEL% NEQ 0 (
   GOTO :end
 )
 
+ECHO updating judgments...
+python src\update_judgments.py
+IF %ERRORLEVEL% NEQ 0 (
+  ECHO update_judgments failed with code %ERRORLEVEL%
+  GOTO :end
+)
+
 ECHO running evaluation...
 python src\evaluate.py
 IF %ERRORLEVEL% NEQ 0 (

@@ -1,4 +1,4 @@
-# simple search with bm25
+# Simple search using BM25
 
 import json
 import pickle
@@ -54,24 +54,24 @@ class BM25:
         return scores
 
 def load_corpus(filename):
-    # load texts
+    # Load text documents
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # use processed text (tokens joined)
+    # Use processed text
     documents = [item['text'] for item in data]
     return documents
 
 def search(query, bm25, documents, top_k=5):
-    # preprocess query
+    # Clean and prepare query
     cleaned = clean_malayalam_text(query)
     tokens = tokenize_malayalam(cleaned)
     processed_query = ' '.join(tokens)
 
-    # get scores
+    # Calculate document scores
     scores = bm25.score(processed_query)
     
-    # top k results
+    # Get top results
     top_indices = np.argsort(scores)[::-1][:top_k]
     
     results = []
@@ -86,15 +86,15 @@ def search(query, bm25, documents, top_k=5):
     return results
 
 def calculate_map(queries, relevance_judgments, bm25, documents):
-    # calculate map score
+    # Calculate MAP score
     average_precisions = []
     
     for query in queries:
-        # search results
+        # Get search results
         results = search(query, bm25, documents, top_k=10)
         result_ids = [r['doc_id'] for r in results]
         
-        # relevant docs
+        # Get relevant documents
         relevant_docs = relevance_judgments.get(query, [])
         
         if not relevant_docs:

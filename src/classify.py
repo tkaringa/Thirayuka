@@ -1,4 +1,4 @@
-# text classifier with tfidf svm
+# Text classifier using SVM
 
 import json
 import sys
@@ -9,14 +9,14 @@ from sklearn.metrics import precision_score, recall_score, f1_score, classificat
 import pickle
 
 def load_data(filename):
-    # load processed data
+    # Load processed data
     with open(filename, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     texts = [item['text'] for item in data]
     
-    # create labels based on content (Politics detection)
-    # Check original_text for political keywords
+    # Create labels for politics
+    # Check for political keywords
     political_keywords = [
         "രാഷ്ട്രീയം", "രാഷ്ട്രീയ", # Politics
         "തിരഞ്ഞെടുപ്പ്", # Election
@@ -49,30 +49,31 @@ def load_data(filename):
 def train_classifier(texts, labels):
     print("splitting data...")
     
-    # split train test
+    # Split training and testing
     X_train, X_test, y_train, y_test = train_test_split(
         texts, labels, test_size=0.2, random_state=42
     )
     
     print(f"train: {len(X_train)}, test: {len(X_test)}")
     
-    # tfidf features
+    # Create TF-IDF features
     print("vectorizing...")
-    vectorizer = TfidfVectorizer(max_features=1000)
+    # Preserve Malayalam tokens
+    vectorizer = TfidfVectorizer(max_features=5000, token_pattern=r"(?u)\S+")
     
     X_train_tfidf = vectorizer.fit_transform(X_train)
     X_test_tfidf = vectorizer.transform(X_test)
     
-    # train svm
+    # Train SVM classifier
     print("training svm...")
-    classifier = SVC(kernel='linear', random_state=42)
+    classifier = SVC(kernel='linear', class_weight='balanced', random_state=42)
     classifier.fit(X_train_tfidf, y_train)
     
-    # predict
+    # Make predictions
     print("predicting...")
     y_pred = classifier.predict(X_test_tfidf)
     
-    # metrics
+    # Calculate performance metrics
     print("\n--- results ---")
     precision = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
@@ -85,7 +86,7 @@ def train_classifier(texts, labels):
     print("\nreport:")
     print(classification_report(y_test, y_pred))
     
-    # save model
+    # Save the model
     print("\nsaving...")
     with open('models/classifier.pkl', 'wb') as f:
         pickle.dump(classifier, f)

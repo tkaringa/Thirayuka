@@ -18,8 +18,10 @@ sys.path.append(os.path.dirname(__file__))
 from preprocess import clean_malayalam_text, tokenize_malayalam
 from retrieval import BM25, search
 
+# Configure page settings
 st.set_page_config(page_title="Malayalam Search", page_icon="🔍", layout="wide")
 
+# Custom CSS styles
 st.markdown("""
 <style>
     .stTextInput > div > div > input {
@@ -65,7 +67,7 @@ st.markdown("""
 def load_resources():
     resources = {}
     
-    # Load BM25
+    # Load BM25 index
     try:
         with open('models/bm25_index.pkl', 'rb') as f:
             resources['bm25'] = pickle.load(f)
@@ -76,7 +78,7 @@ def load_resources():
     except Exception as e:
         st.error(f"Error loading BM25: {e}")
         
-    # Load SVM Classifier
+    # Load SVM model
     try:
         with open('models/classifier.pkl', 'rb') as f:
             resources['svm'] = pickle.load(f)
@@ -85,7 +87,7 @@ def load_resources():
     except Exception as e:
         st.error(f"Error loading SVM Classifier: {e}")
 
-    # Load BERT Classifier
+    # Load BERT model
     try:
         model_path = 'models/bert_classifier'
         if os.path.exists(model_path):
@@ -100,7 +102,7 @@ def highlight_text(text, query):
     if not query:
         return text
     
-    # Simple highlighting of query terms
+    # Highlight query terms
     query_terms = query.split()
     highlighted = text
     for term in query_terms:
@@ -111,15 +113,15 @@ def highlight_text(text, query):
 
 resources = load_resources()
 
-# Sidebar Navigation
+# Sidebar navigation menu
 page = st.sidebar.selectbox("Navigate", ["Search", "Classify", "Corpus Stats"])
 
 if page == "Search":
-    # Centered Layout
+    # Centered search layout
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        # Logo
+        # Display logo
         if os.path.exists("search.svg"):
             with open("search.svg", "r", encoding="utf-8") as f:
                 svg_code = f.read()
@@ -127,17 +129,17 @@ if page == "Search":
         else:
             st.markdown("<h1 style='text-align: center; color: #4285F4;'>Malayalam Search</h1>", unsafe_allow_html=True)
             
-        # Search Bar
+        # Search input field
         query = st.text_input("", placeholder="Search Malayalam Documents...", label_visibility="collapsed")
         
-        # Buttons
+        # Action buttons
         b_col1, b_col2, b_col3, b_col4 = st.columns([1, 2, 2, 1])
         with b_col2:
             search_clicked = st.button("Malayalam Search")
         with b_col3:
             lucky_clicked = st.button("Random Document")
 
-    # Results Area
+    # Display search results
     if query: # Streamlit reruns on enter in text_input
         if 'bm25' in resources:
             results = search(query, resources['bm25'], resources['documents'], top_k=10)
@@ -149,7 +151,7 @@ if page == "Search":
                 score = res['score']
                 text = resources['original_docs'][doc_id]
                 
-                # Create a snippet
+                # Create text snippet
                 snippet = text[:300] + "..." if len(text) > 300 else text
                 highlighted_snippet = highlight_text(snippet, query)
                 
@@ -178,10 +180,13 @@ elif page == "Classify":
     with col1:
         if st.button("Classify with SVM"):
             if 'svm' in resources and input_text:
-                # Preprocess
+                # Preprocess input text
                 cleaned = clean_malayalam_text(input_text)
-                # Vectorize
-                vec = resources['vectorizer'].transform([cleaned])
+                tokens = tokenize_malayalam(cleaned)
+                processed_text = ' '.join(tokens)
+                
+                # Vectorize and predict
+                vec = resources['vectorizer'].transform([processed_text])
                 # Predict
                 pred = resources['svm'].predict(vec)[0]
                 
@@ -197,9 +202,9 @@ elif page == "Classify":
     with col2:
         if st.button("Classify with BERT"):
             if 'bert_model' in resources and input_text:
-                # Tokenize
+                # Tokenize input text
                 inputs = resources['bert_tokenizer'](input_text, return_tensors="pt", truncation=True, padding=True, max_length=128)
-                # Predict
+                # Predict with BERT
                 with torch.no_grad():
                     outputs = resources['bert_model'](**inputs)
                 
@@ -225,7 +230,7 @@ elif page == "Corpus Stats":
         num_docs = len(resources['documents'])
         col1.metric("Total Documents", num_docs)
         
-        # Calculate vocab size and word freqs
+        # Calculate vocabulary stats
         all_tokens = []
         for doc in resources['documents']:
             all_tokens.extend(doc.split())
